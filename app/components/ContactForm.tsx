@@ -5,7 +5,7 @@ import { useAuth } from '@/app/context/AuthContext';
 export default function ContactForm() {
   const { user } = useAuth();
   const [email, setEmail] = useState(user?.email || '');
-  const [subject, setSubject] = useState(''); // New subject state
+  const [subject, setSubject] = useState(''); 
   const [message, setMessage] = useState('');
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
@@ -21,7 +21,7 @@ export default function ContactForm() {
       const res = await fetch('/api/messages', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ senderEmail: email, subject, message }), // Include subject
+        body: JSON.stringify({ senderEmail: email, subject, message }),
       });
 
       const data = await res.json();
