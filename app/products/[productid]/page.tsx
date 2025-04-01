@@ -31,6 +31,16 @@ export default function ProductDetailPage() {
   const taxRate = 0.1;
 
   useEffect(() => {
+    if (user) {
+      setUserInfo((prev) => ({
+        ...prev,
+        name: user.name,
+        email: user.email,
+      }));
+    }
+  }, [user]);
+
+  useEffect(() => {
     if (!productid) return;
     fetch(`/api/products/${productid}`)
       .then((res) => res.json())
@@ -51,9 +61,8 @@ export default function ProductDetailPage() {
 
   const handleRentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-  
     const total = Number((rentTotal + rentTotal * taxRate).toFixed(2));
-  
+
     const res = await fetch('/api/rent', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -67,10 +76,10 @@ export default function ProductDetailPage() {
         total,
       }),
     });
-  
+
     if (res.ok) {
       alert('Rent request submitted!');
-      setUserInfo({ name: '', email: '', phone: '', address: '' });
+      setUserInfo((prev) => ({ ...prev, phone: '', address: '' }));
       setDays(1);
       setMode(null);
     } else {
@@ -141,60 +150,66 @@ export default function ProductDetailPage() {
       )}
 
       {mode === 'rent' && (
-        <form onSubmit={handleRentSubmit} className="mt-10 bg-gray-900 border border-gray-700 rounded p-6">
-          <h2 className="text-xl font-semibold mb-4">Rent Form</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <input
-              type="text"
-              placeholder="Full Name"
-              value={userInfo.name}
-              onChange={(e) => setUserInfo({ ...userInfo, name: e.target.value })}
-              className="px-4 py-2 rounded bg-gray-800 border border-gray-600"
-            />
-            <input
-              type="email"
-              placeholder="Email"
-              value={userInfo.email}
-              onChange={(e) => setUserInfo({ ...userInfo, email: e.target.value })}
-              className="px-4 py-2 rounded bg-gray-800 border border-gray-600"
-            />
-            <input
-              type="tel"
-              placeholder="Phone"
-              value={userInfo.phone}
-              onChange={(e) => setUserInfo({ ...userInfo, phone: e.target.value })}
-              className="px-4 py-2 rounded bg-gray-800 border border-gray-600"
-            />
-            <input
-              type="text"
-              placeholder="Address"
-              value={userInfo.address}
-              onChange={(e) => setUserInfo({ ...userInfo, address: e.target.value })}
-              className="px-4 py-2 rounded bg-gray-800 border border-gray-600"
-            />
+        !user ? (
+          <div className="mt-10 bg-yellow-100 text-yellow-800 p-6 rounded border border-yellow-300">
+            Please log in to rent this product.
           </div>
+        ) : (
+          <form onSubmit={handleRentSubmit} className="mt-10 bg-gray-900 border border-gray-700 rounded p-6">
+            <h2 className="text-xl font-semibold mb-4">Rent Form</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <input
+                type="text"
+                placeholder="Full Name"
+                value={userInfo.name}
+                disabled
+                className="px-4 py-2 rounded bg-gray-800 border border-gray-600 cursor-not-allowed"
+              />
+              <input
+                type="email"
+                placeholder="Email"
+                value={userInfo.email}
+                disabled
+                className="px-4 py-2 rounded bg-gray-800 border border-gray-600 cursor-not-allowed"
+              />
+              <input
+                type="tel"
+                placeholder="Phone"
+                value={userInfo.phone}
+                onChange={(e) => setUserInfo({ ...userInfo, phone: e.target.value })}
+                className="px-4 py-2 rounded bg-gray-800 border border-gray-600"
+              />
+              <input
+                type="text"
+                placeholder="Address"
+                value={userInfo.address}
+                onChange={(e) => setUserInfo({ ...userInfo, address: e.target.value })}
+                className="px-4 py-2 rounded bg-gray-800 border border-gray-600"
+              />
+            </div>
 
-          <div className="mb-4">
-            <label className="block mb-2">How many days?</label>
-            <input
-              type="number"
-              min={1}
-              value={days}
-              onChange={(e) => setDays(parseInt(e.target.value))}
-              className="w-32 px-4 py-2 rounded bg-gray-800 border border-gray-600"
-            />
-          </div>
+            <div className="mb-4">
+              <label className="block mb-2">How many days?</label>
+              <input
+                type="number"
+                min={1}
+                value={days}
+                onChange={(e) => setDays(parseInt(e.target.value))}
+                className="w-32 px-4 py-2 rounded bg-gray-800 border border-gray-600"
+              />
+            </div>
 
-          <div className="text-lg text-yellow-400">
-            <strong>Total Rent:</strong> ${rentTotalWithTax}
-          </div>
-          <p className="mt-2 text-sm text-gray-400">
-            * 10% tax applied. This is a preview only.
-          </p>
-          <button type="submit" className="mt-4 bg-yellow-500 hover:bg-yellow-600 text-black font-semibold px-6 py-2 rounded">
-            Submit Rent Request
-          </button>
-        </form>
+            <div className="text-lg text-yellow-400">
+              <strong>Total Rent:</strong> ${rentTotalWithTax}
+            </div>
+            <p className="mt-2 text-sm text-gray-400">
+              * 10% tax applied. This is a preview only.
+            </p>
+            <button type="submit" className="mt-4 bg-yellow-500 hover:bg-yellow-600 text-black font-semibold px-6 py-2 rounded">
+              Submit Rent Request
+            </button>
+          </form>
+        )
       )}
     </div>
   );

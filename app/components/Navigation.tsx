@@ -40,12 +40,20 @@ export default function Navigation() {
           <Link href="/products" className="text-lg hover:text-gray-400 dark:hover:text-gray-300 transition duration-300 ease-in-out transform hover:scale-105">
             Products
           </Link>
-          {/* Show Contact link only for non-admins */}
-          {(!user || user.role !== 'admin') && (
-            <Link href="/contact" className="text-lg hover:text-gray-400 dark:hover:text-gray-300 transition duration-300 ease-in-out transform hover:scale-105">
-              Contact
-            </Link>
+
+          {/* Regular users */}
+          {user?.role !== 'admin' && (
+            <>
+              <Link href="/contact" className="text-lg hover:text-gray-400 dark:hover:text-gray-300 transition duration-300 ease-in-out transform hover:scale-105">
+                Contact
+              </Link>
+              <Link href="/myrequests" className="text-lg hover:text-gray-400 dark:hover:text-gray-300 transition duration-300 ease-in-out transform hover:scale-105">
+                My Requests
+              </Link>
+            </>
           )}
+
+          {/* Admin users */}
           {user?.role === 'admin' && (
             <>
               <Link href="/messages" className="text-lg hover:text-gray-400 dark:hover:text-gray-300 transition duration-300 ease-in-out transform hover:scale-105">
@@ -57,6 +65,7 @@ export default function Navigation() {
             </>
           )}
         </div>
+
 
         <div className="hidden md:flex space-x-6">
           
@@ -101,10 +110,15 @@ export default function Navigation() {
             About
           </Link>
           {/* Show Contact link only for non-admins */}
-          {(!user || user.role !== 'admin') && (
-            <Link href="/contact" className="text-lg hover:text-gray-400 dark:hover:text-gray-300 transition duration-300 ease-in-out transform hover:scale-105 text-white">
-              Contact
-            </Link>
+          {user?.role !== 'admin' && (
+            <>
+              <Link href="/contact" className="text-lg hover:text-gray-400 dark:hover:text-gray-300 transition duration-300 ease-in-out transform hover:scale-105 text-white">
+                Contact
+              </Link>
+              <Link href="/myrequests" className="text-lg hover:text-gray-400 dark:hover:text-gray-300 transition duration-300 ease-in-out transform hover:scale-105 text-white">
+                My Requests
+              </Link>
+            </>
           )}
           {user?.role === 'admin' && (
             <>

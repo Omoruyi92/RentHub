@@ -23,9 +23,12 @@ interface RentRequest {
   address: string;
   days: number;
   total: number;
+  productId: string;
   productName: string;
+  status: 'pending' | 'accepted' | 'rejected';
   createdAt: string;
 }
+
 
 export default function MessagesPage() {
   const { user, token } = useAuth();
@@ -77,6 +80,30 @@ export default function MessagesPage() {
       setError(err instanceof Error ? err.message : 'Failed to fetch rent requests');
     }
   };
+
+  const handleStatusUpdate = async (id: string, status: 'accepted' | 'rejected') => {
+    try {
+      const res = await fetch(`/api/rentrequests/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ status }),
+      });
+  
+      const updated = await res.json();
+      if (!res.ok) throw new Error(updated.error || 'Update failed');
+  
+      // update state
+      setRentRequests(prev =>
+        prev.map(req => (req._id === id ? { ...req, status: updated.status } : req))
+      );
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update status');
+    }
+  };
+  
 
   const handleReply = async (messageId: string) => {
     try {
@@ -241,28 +268,59 @@ export default function MessagesPage() {
         </>
       )}
 
-      {activeTab === 'rent' && (
-        <div className="grid gap-4">
-          {rentRequests.length === 0 ? (
-            <p className="text-gray-400">No rent requests found.</p>
-          ) : (
-            rentRequests.map((req) => (
-              <div key={req._id} className="p-6 bg-gray-800 rounded-lg shadow-md">
-                <p><strong>Name:</strong> {req.name}</p>
-                <p><strong>Email:</strong> {req.email}</p>
-                <p><strong>Phone:</strong> {req.phone}</p>
-                <p><strong>Address:</strong> {req.address}</p>
-                <p><strong>Product:</strong> {req.productName}</p>
-                <p><strong>Days:</strong> {req.days}</p>
-                <p><strong>Total:</strong> ${req.total}</p>
-                <p className="text-sm text-gray-400">
-                  Submitted: {new Date(req.createdAt).toLocaleString()}
-                </p>
-              </div>
-            ))
+{activeTab === 'rent' && (
+  <div className="grid gap-4">
+    {rentRequests.length === 0 ? (
+      <p className="text-gray-400">No rent requests found.</p>
+    ) : (
+      rentRequests.map((req) => (
+        <div key={req._id} className="p-6 bg-gray-800 rounded-lg shadow-md">
+          <p><strong>Name:</strong> {req.name}</p>
+          <p><strong>Email:</strong> {req.email}</p>
+          <p><strong>Phone:</strong> {req.phone}</p>
+          <p><strong>Address:</strong> {req.address}</p>
+          <p><strong>Product:</strong> {req.productName}</p>
+          <p><strong>Days:</strong> {req.days}</p>
+          <p><strong>Total:</strong> ${req.total}</p>
+          <p>
+            <strong>Status:</strong>{' '}
+            <span
+              className={`inline-block px-2 py-1 rounded text-white text-sm ${
+                req.status === 'accepted'
+                  ? 'bg-green-600'
+                  : req.status === 'rejected'
+                  ? 'bg-red-600'
+                  : 'bg-yellow-600'
+              }`}
+            >
+              {req.status}
+            </span>
+          </p>
+          <p className="text-sm text-gray-400">
+            Submitted: {new Date(req.createdAt).toLocaleString()}
+          </p>
+
+          {req.status === 'pending' && (
+            <div className="flex gap-2 mt-4">
+              <button
+                onClick={() => handleStatusUpdate(req._id, 'accepted')}
+                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
+              >
+                Accept
+              </button>
+              <button
+                onClick={() => handleStatusUpdate(req._id, 'rejected')}
+                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded"
+              >
+                Reject
+              </button>
+            </div>
           )}
         </div>
-      )}
+      ))
+    )}
+  </div>
+)}
     </div>
   );
 }
