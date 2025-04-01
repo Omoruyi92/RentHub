@@ -3,6 +3,7 @@
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/app/context/AuthContext';
+import { useCart } from '@/app/context/CartContext';
 
 interface Product {
   _id: string;
@@ -14,12 +15,21 @@ interface Product {
   category?: string;
 }
 
+interface CartItem {
+  id: string;
+  name: string;
+  price: number;
+  image: string;
+  quantity: number;
+}
+
 export default function ProductDetailPage() {
   const { productid } = useParams();
   const [product, setProduct] = useState<Product | null>(null);
   const [mode, setMode] = useState<'buy' | 'rent' | null>(null);
   const [days, setDays] = useState(1);
   const { user } = useAuth();
+  const { addToCart } = useCart();
 
   const [userInfo, setUserInfo] = useState({
     name: '',
@@ -32,7 +42,7 @@ export default function ProductDetailPage() {
 
   useEffect(() => {
     if (user) {
-      setUserInfo((prev) => ({
+      setUserInfo(prev => ({
         ...prev,
         name: user.name,
         email: user.email,
@@ -43,8 +53,8 @@ export default function ProductDetailPage() {
   useEffect(() => {
     if (!productid) return;
     fetch(`/api/products/${productid}`)
-      .then((res) => res.json())
-      .then((data) => {
+      .then(res => res.json())
+      .then(data => {
         if (!data._id) return setProduct(null);
         setProduct(data);
       })
@@ -61,7 +71,8 @@ export default function ProductDetailPage() {
 
   const handleRentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const total = Number((rentTotal + rentTotal * taxRate).toFixed(2));
+
+    const total = Number(rentTotalWithTax);
 
     const res = await fetch('/api/rent', {
       method: 'POST',
@@ -79,12 +90,24 @@ export default function ProductDetailPage() {
 
     if (res.ok) {
       alert('Rent request submitted!');
-      setUserInfo((prev) => ({ ...prev, phone: '', address: '' }));
+      setUserInfo(prev => ({ ...prev, phone: '', address: '' }));
       setDays(1);
       setMode(null);
     } else {
       alert('Failed to submit rent request. Please try again.');
     }
+  };
+
+  const handleAddToCart = () => {
+    const cartItem: CartItem = {
+      id: product._id,
+      name: product.name,
+      price: product.price,
+      image: product.imageUrl || '',
+      quantity: 1,
+    };
+    addToCart(cartItem);
+    alert(`${product.name} added to cart`);
   };
 
   return (
@@ -115,6 +138,7 @@ export default function ProductDetailPage() {
               <span className="font-semibold text-yellow-400">Rent Per Day:</span> ${product.rentPerDay}
             </p>
           )}
+
           <div className="flex gap-4">
             <button
               onClick={() => setMode('buy')}
@@ -130,10 +154,17 @@ export default function ProductDetailPage() {
                 Rent
               </button>
             )}
+            <button
+              onClick={handleAddToCart}
+              className="bg-yellow-500 text-black px-4 py-2 rounded hover:bg-yellow-600"
+            >
+              Add to Cart
+            </button>
           </div>
         </div>
       </div>
 
+      {/* Buy Summary */}
       {mode === 'buy' && (
         <div className="mt-10 bg-gray-900 border border-gray-700 rounded p-6">
           <h2 className="text-xl font-semibold mb-4">Buy Summary</h2>
@@ -149,6 +180,7 @@ export default function ProductDetailPage() {
         </div>
       )}
 
+      {/* Rent Form */}
       {mode === 'rent' && (
         !user ? (
           <div className="mt-10 bg-yellow-100 text-yellow-800 p-6 rounded border border-yellow-300">
@@ -160,15 +192,15 @@ export default function ProductDetailPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <input
                 type="text"
-                placeholder="Full Name"
                 value={userInfo.name}
+                placeholder="Full Name"
                 disabled
                 className="px-4 py-2 rounded bg-gray-800 border border-gray-600 cursor-not-allowed"
               />
               <input
                 type="email"
-                placeholder="Email"
                 value={userInfo.email}
+                placeholder="Email"
                 disabled
                 className="px-4 py-2 rounded bg-gray-800 border border-gray-600 cursor-not-allowed"
               />

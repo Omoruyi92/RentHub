@@ -6,6 +6,14 @@ import mongoose from 'mongoose';
 const dbConnect = async () => {
   try {
     mongoose.connect(process.env.MONGODB_URI!);
+    const uri = process.env.MONGODB_URI;
+
+    if (!uri) {
+      console.error("MONGODB_URI is undefined. Please check your .env file.");
+      process.exit(1);
+    }
+
+    await mongoose.connect(uri);
     const connection = mongoose.connection;
 
     if (connection.listeners('connected').length === 0) {
@@ -25,6 +33,5 @@ const dbConnect = async () => {
     console.log(error);
   }
 };
-
 
 export default dbConnect;

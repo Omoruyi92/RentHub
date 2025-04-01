@@ -34,7 +34,7 @@ export async function POST(request: Request) {
     address,
     days,
     total,
-    status: 'pending'
+    status: 'pending',
   });
 
   return NextResponse.json(newRequest, { status: 201 });
@@ -46,8 +46,8 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   const email = url.searchParams.get('email');
 
+  // If no email param is provided, assume admin is requesting
   if (!email) {
-    // Admin request — must be authorized
     const isAdminUser = await isAdmin(request);
     if (!isAdminUser) {
       return NextResponse.json(
@@ -59,6 +59,5 @@ export async function GET(request: Request) {
 
   const filter = email ? { email } : {};
   const requests = await RentRequest.find(filter).sort({ createdAt: -1 });
-
   return NextResponse.json(requests);
 }

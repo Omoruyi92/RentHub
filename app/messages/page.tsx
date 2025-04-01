@@ -29,7 +29,6 @@ interface RentRequest {
   createdAt: string;
 }
 
-
 export default function MessagesPage() {
   const { user, token } = useAuth();
   const router = useRouter();
@@ -321,6 +320,28 @@ export default function MessagesPage() {
     )}
   </div>
 )}
+      {activeTab === 'rent' && (
+        <div className="grid gap-4">
+          {rentRequests.length === 0 ? (
+            <p className="text-gray-400">No rent requests found.</p>
+          ) : (
+            rentRequests.map((req) => (
+              <div key={req._id} className="p-6 bg-gray-800 rounded-lg shadow-md">
+                <p><strong>Name:</strong> {req.name}</p>
+                <p><strong>Email:</strong> {req.email}</p>
+                <p><strong>Phone:</strong> {req.phone}</p>
+                <p><strong>Address:</strong> {req.address}</p>
+                <p><strong>Product:</strong> {req.productName}</p>
+                <p><strong>Days:</strong> {req.days}</p>
+                <p><strong>Total:</strong> ${req.total}</p>
+                <p className="text-sm text-gray-400">
+                  Submitted: {new Date(req.createdAt).toLocaleString()}
+                </p>
+              </div>
+            ))
+          )}
+        </div>
+      )}
     </div>
   );
 }

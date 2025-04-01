@@ -1,14 +1,18 @@
 "use client";
+
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import Logo from "./Logo";
 import { Menu, X } from "lucide-react";
 import { useAuth } from '@/app/context/AuthContext';
+import { useCart } from '@/app/context/CartContext';
 
 export default function Navigation() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolling, setScrolling] = useState(false);
   const { user, logout } = useAuth();
+  const { cartItems } = useCart();
+  const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   useEffect(() => {
     const handleScroll = () => setScrolling(window.scrollY > 50);
@@ -31,23 +35,23 @@ export default function Navigation() {
         </Link>
 
         <div className="hidden md:flex space-x-8">
-          <Link href="/" className="text-lg hover:text-gray-400 dark:hover:text-gray-300 transition duration-300 ease-in-out transform hover:scale-105">
+          <Link href="/" className="text-lg hover:text-gray-400 dark:hover:text-gray-300 transition hover:scale-105">
             Home
           </Link>
-          <Link href="/about" className="text-lg hover:text-gray-400 dark:hover:text-gray-300 transition duration-300 ease-in-out transform hover:scale-105">
+          <Link href="/about" className="text-lg hover:text-gray-400 dark:hover:text-gray-300 transition hover:scale-105">
             About
           </Link>
-          <Link href="/products" className="text-lg hover:text-gray-400 dark:hover:text-gray-300 transition duration-300 ease-in-out transform hover:scale-105">
+          <Link href="/products" className="text-lg hover:text-gray-400 dark:hover:text-gray-300 transition hover:scale-105">
             Products
           </Link>
 
           {/* Regular users */}
           {user?.role !== 'admin' && (
             <>
-              <Link href="/contact" className="text-lg hover:text-gray-400 dark:hover:text-gray-300 transition duration-300 ease-in-out transform hover:scale-105">
+              <Link href="/contact" className="text-lg hover:text-gray-400 dark:hover:text-gray-300 transition hover:scale-105">
                 Contact
               </Link>
-              <Link href="/myrequests" className="text-lg hover:text-gray-400 dark:hover:text-gray-300 transition duration-300 ease-in-out transform hover:scale-105">
+              <Link href="/myrequests" className="text-lg hover:text-gray-400 dark:hover:text-gray-300 transition hover:scale-105">
                 My Requests
               </Link>
             </>
@@ -56,19 +60,29 @@ export default function Navigation() {
           {/* Admin users */}
           {user?.role === 'admin' && (
             <>
-              <Link href="/messages" className="text-lg hover:text-gray-400 dark:hover:text-gray-300 transition duration-300 ease-in-out transform hover:scale-105">
+              <Link href="/messages" className="text-lg hover:text-gray-400 dark:hover:text-gray-300 transition hover:scale-105">
                 Messages
               </Link>
-              <Link href="/admin/contact" className="text-lg hover:text-gray-400 dark:hover:text-gray-300 transition duration-300 ease-in-out transform hover:scale-105">
-                Contact
+              <Link href="/admin/contact" className="text-lg hover:text-gray-400 dark:hover:text-gray-300 transition hover:scale-105">
+                Send Contact
               </Link>
             </>
           )}
         </div>
 
+        <div className="hidden md:flex space-x-6 items-center">
+          <Link
+            href="/cart"
+            className="relative flex items-center text-lg hover:text-gray-400 dark:hover:text-gray-300 transition hover:scale-105"
+          >
+            🛒 Cart
+            {cartCount > 0 && (
+              <span className="ml-1 inline-flex items-center justify-center text-xs font-semibold bg-red-500 text-white w-5 h-5 rounded-full">
+                {cartCount}
+              </span>
+            )}
+          </Link>
 
-        <div className="hidden md:flex space-x-6">
-          
           {user ? (
             <>
               <span className="text-lg font-medium px-2 py-2 text-gray-700 dark:text-gray-200">
@@ -76,23 +90,24 @@ export default function Navigation() {
               </span>
               <button 
                 onClick={logout}
-                className="bg-gray-800 hover:bg-gray-700 px-6 py-2 rounded-md text-lg font-medium text-white transition-transform transform hover:scale-105"
+                className="bg-gray-800 hover:bg-gray-700 px-6 py-2 rounded-md text-lg font-medium text-white transition hover:scale-105"
               >
                 Logout
               </button>
             </>
           ) : (
             <>
-              <Link href="/login" className="bg-gray-800 hover:bg-gray-700 px-6 py-2 rounded-md text-lg font-medium text-white transition-transform transform hover:scale-105">
+              <Link href="/login" className="bg-gray-800 hover:bg-gray-700 px-6 py-2 rounded-md text-lg font-medium text-white transition hover:scale-105">
                 Login
               </Link>
-              <Link href="/signup" className="bg-yellow-500 hover:bg-yellow-600 px-6 py-2 rounded-md text-lg font-medium text-white transition-transform transform hover:scale-105">
+              <Link href="/signup" className="bg-yellow-500 hover:bg-yellow-600 px-6 py-2 rounded-md text-lg font-medium text-white transition hover:scale-105">
                 Sign Up
               </Link>
             </>
           )}
         </div>
 
+        {/* Mobile Menu Toggle */}
         <button className="md:hidden text-gray-700 dark:text-gray-200" onClick={() => setMenuOpen(!menuOpen)}>
           {menuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
@@ -100,58 +115,42 @@ export default function Navigation() {
 
       {menuOpen && (
         <div className="md:hidden flex flex-col bg-gray-800 dark:bg-gray-900 p-4 space-y-3 rounded-lg">
-          <Link href="/" className="text-lg hover:text-gray-400 dark:hover:text-gray-300 transition duration-300 ease-in-out transform hover:scale-105 text-white">
-            Home
-          </Link>
-          <Link href="/products" className="text-lg hover:text-gray-400 dark:hover:text-gray-300 transition duration-300 ease-in-out transform hover:scale-105 text-white">
-            Products
-          </Link>
-          <Link href="/about" className="text-lg hover:text-gray-400 dark:hover:text-gray-300 transition duration-300 ease-in-out transform hover:scale-105 text-white">
-            About
-          </Link>
-          {/* Show Contact link only for non-admins */}
+          <Link href="/" className="text-white hover:text-gray-300 transition hover:scale-105">Home</Link>
+          <Link href="/products" className="text-white hover:text-gray-300 transition hover:scale-105">Products</Link>
+          <Link href="/about" className="text-white hover:text-gray-300 transition hover:scale-105">About</Link>
+
           {user?.role !== 'admin' && (
             <>
-              <Link href="/contact" className="text-lg hover:text-gray-400 dark:hover:text-gray-300 transition duration-300 ease-in-out transform hover:scale-105 text-white">
-                Contact
-              </Link>
-              <Link href="/myrequests" className="text-lg hover:text-gray-400 dark:hover:text-gray-300 transition duration-300 ease-in-out transform hover:scale-105 text-white">
-                My Requests
-              </Link>
-            </>
-          )}
-          {user?.role === 'admin' && (
-            <>
-              <Link href="/messages" className="text-lg hover:text-gray-400 dark:hover:text-gray-300 transition duration-300 ease-in-out transform hover:scale-105 text-white">
-                Messages
-              </Link>
-              <Link href="/admin/contact" className="text-lg hover:text-gray-400 dark:hover:text-gray-300 transition duration-300 ease-in-out transform hover:scale-105 text-white">
-                Send Contact
-              </Link>
+              <Link href="/contact" className="text-white hover:text-gray-300 transition hover:scale-105">Contact</Link>
+              <Link href="/myrequests" className="text-white hover:text-gray-300 transition hover:scale-105">My Requests</Link>
             </>
           )}
 
-          
+          {user?.role === 'admin' && (
+            <>
+              <Link href="/messages" className="text-white hover:text-gray-300 transition hover:scale-105">Messages</Link>
+              <Link href="/admin/contact" className="text-white hover:text-gray-300 transition hover:scale-105">Send Contact</Link>
+            </>
+          )}
+
+          <Link href="/cart" className="text-white hover:text-gray-300 transition hover:scale-105">
+            🛒 Cart ({cartCount})
+          </Link>
+
           {user ? (
             <>
-              <span className="text-lg font-medium px-2 py-2 text-white">
-                Welcome, {user.name}
-              </span>
-              <button 
+              <span className="text-white font-medium">Welcome, {user.name}</span>
+              <button
                 onClick={logout}
-                className="bg-gray-800 hover:bg-gray-700 px-6 py-2 rounded-md text-lg font-medium text-white transition-transform transform hover:scale-105"
+                className="bg-gray-700 px-6 py-2 rounded-md text-white text-lg hover:bg-gray-600 transition hover:scale-105"
               >
                 Logout
               </button>
             </>
           ) : (
             <>
-              <Link href="/login" className="bg-gray-800 hover:bg-gray-700 px-6 py-2 rounded-md text-lg font-medium text-white transition-transform transform hover:scale-105">
-                Login
-              </Link>
-              <Link href="/signup" className="bg-yellow-500 hover:bg-yellow-600 px-6 py-2 rounded-md text-lg font-medium text-white transition-transform transform hover:scale-105">
-                Sign Up
-              </Link>
+              <Link href="/login" className="bg-gray-800 hover:bg-gray-700 px-6 py-2 rounded-md text-white text-lg transition hover:scale-105">Login</Link>
+              <Link href="/signup" className="bg-yellow-500 hover:bg-yellow-600 px-6 py-2 rounded-md text-white text-lg transition hover:scale-105">Sign Up</Link>
             </>
           )}
         </div>
