@@ -1,20 +1,15 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 export const runtime = 'nodejs';
 
-import { NextResponse, NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
 import dbConnect from '@/app/lib/dbConnect';
 import Product from '@/app/models/Product';
 import { adminMiddleware } from '@/app/middleware/authMiddleware';
 
-// Define the params type explicitly
-interface RouteParams {
-  params: {
-    productid: string;
-  };
-}
-
-const GET = async (_request: NextRequest, { params }: RouteParams) => {
-  const { productid } = params;
+export async function GET(
+  request: Request,
+  { params }: { params: Promise<{ productid: string }> }
+) {
+  const { productid } = await params;
   try {
     await dbConnect();
     const product = await Product.findById(productid);
@@ -25,13 +20,16 @@ const GET = async (_request: NextRequest, { params }: RouteParams) => {
   } catch (error) {
     return NextResponse.json({ message: 'Server error', error }, { status: 500 });
   }
-};
+}
 
-const PUT = async (request: NextRequest, { params }: RouteParams) => {
+export async function PUT(
+  request: Request,
+  { params }: { params: Promise<{ productid: string }> }
+) {
+  const { productid } = await params;
   const middlewareResponse = await adminMiddleware(request);
   if (middlewareResponse) return middlewareResponse;
 
-  const { productid } = params;
   try {
     await dbConnect();
     const body = await request.json();
@@ -43,13 +41,16 @@ const PUT = async (request: NextRequest, { params }: RouteParams) => {
   } catch {
     return NextResponse.json({ message: 'Server error' }, { status: 500 });
   }
-};
+}
 
-const DELETE = async (request: NextRequest, { params }: RouteParams) => {
+export async function DELETE(
+  request: Request,
+  { params }: { params: Promise<{ productid: string }> }
+) {
+  const { productid } = await params;
   const middlewareResponse = await adminMiddleware(request);
   if (middlewareResponse) return middlewareResponse;
 
-  const { productid } = params;
   try {
     await dbConnect();
     const deletedProduct = await Product.findByIdAndDelete(productid);
@@ -60,6 +61,4 @@ const DELETE = async (request: NextRequest, { params }: RouteParams) => {
   } catch {
     return NextResponse.json({ message: 'Server error' }, { status: 500 });
   }
-};
-
-export { GET, PUT, DELETE };
+}
