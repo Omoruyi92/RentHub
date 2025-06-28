@@ -6,7 +6,14 @@ import dbConnect from '@/app/lib/dbConnect';
 import Product from '@/app/models/Product';
 import { adminMiddleware } from '@/app/middleware/authMiddleware';
 
-const GET = async (_request: NextRequest, { params }: { params: { productid: string; }; }) => {
+// Define the params type explicitly
+interface RouteParams {
+  params: {
+    productid: string;
+  };
+}
+
+const GET = async (_request: NextRequest, { params }: RouteParams) => {
   const { productid } = params;
   try {
     await dbConnect();
@@ -20,7 +27,7 @@ const GET = async (_request: NextRequest, { params }: { params: { productid: str
   }
 };
 
-const PUT = async (request: NextRequest, { params }: { params: { productid: string } }) => {
+const PUT = async (request: NextRequest, { params }: RouteParams) => {
   const middlewareResponse = await adminMiddleware(request);
   if (middlewareResponse) return middlewareResponse;
 
@@ -38,7 +45,7 @@ const PUT = async (request: NextRequest, { params }: { params: { productid: stri
   }
 };
 
-const DELETE = async (request: NextRequest, { params }: { params: { productid: string } }) => {
+const DELETE = async (request: NextRequest, { params }: RouteParams) => {
   const middlewareResponse = await adminMiddleware(request);
   if (middlewareResponse) return middlewareResponse;
 
