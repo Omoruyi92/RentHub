@@ -30,7 +30,7 @@ export default function MyRequestsPage() {
       })
       .catch((err) => setError(err.message))
       .finally(() => setIsLoading(false));
-  }, [user]);
+  }, [user, token]);
 
   if (isLoading) return <div className="p-8 text-gray-300">Please log in to see your requests</div>;
   if (error) return <div className="p-8 text-red-400">Error: {error}</div>;
@@ -47,12 +47,11 @@ export default function MyRequestsPage() {
               <p><strong>Product:</strong> {req.productName}</p>
               <p><strong>Days:</strong> {req.days}</p>
               <p><strong>Total:</strong> ${req.total}</p>
-              <p><strong>Status:</strong> 
-                <span className={`ml-2 px-2 py-1 rounded text-sm ${
-                  req.status === "pending" ? "bg-yellow-600" :
-                  req.status === "accepted" ? "bg-green-600" :
-                  "bg-red-600"
-                }`}>
+              <p><strong>Status:</strong>
+                <span className={`ml-2 px-2 py-1 rounded text-sm ${req.status === "pending" ? "bg-yellow-600" :
+                    req.status === "accepted" ? "bg-green-600" :
+                      "bg-red-600"
+                  }`}>
                   {req.status}
                 </span>
               </p>

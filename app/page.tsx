@@ -1,6 +1,8 @@
-
 "use client";
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
+import Image from 'next/image';
+import Logo from "./components/Logo";
 import {
   FaDollarSign,
   FaLock,
@@ -8,7 +10,6 @@ import {
   FaAngleDoubleDown,
 } from "react-icons/fa";
 import Testimonials from "./components/Testimonials";
-
 
 const HomePage = () => {
   const [showScrollIndicator, setShowScrollIndicator] = useState(true);
@@ -28,115 +29,161 @@ const HomePage = () => {
 
   return (
     <div className="flex flex-col">
-      <header className="relative flex flex-col items-center text-center py-20 px-6 bg-gradient-to-r from-blue-600 to-blue-800 text-white shadow-lg overflow-hidden h-screen">
-        <div className="absolute inset-0 z-[-1]">
-          <img
-            src="https://placeholder.co/600x400/EEE/31343C?font=roboto&text=Roboto"
-            alt="Gadget rental background"
-            className="w-full h-full object-cover opacity-50"
+      {/* Hero Section */}
+      <header className="relative flex flex-col items-center justify-center text-center py-20 px-6 min-h-screen text-white bg-gradient-to-br from-blue-700 to-blue-900">
+        {/* Background Image */}
+        <div className="absolute inset-0 z-0">
+          <Image
+            src="/hero.avif"
+            alt="Background"
+            fill
+            className="w-full h-full object-cover"
           />
+          <div className="absolute inset-0 bg-black/40"></div>
         </div>
 
-        <h1 className="text-5xl font-extrabold text-white drop-shadow-xl mb-4">
-          Welcome to RentHub
-        </h1>
-        <p className="text-lg text-gray-100 max-w-2xl mx-auto mb-8">
-          Rent high-end gadgets like cameras, gaming consoles, laptops, and
-          more, without the hefty price tag. Your next adventure starts here.
-        </p>
+        {/* Content */}
+        <div className="max-w-4xl mx-auto space-y-6 relative z-10">
+          <h1 className="text-5xl md:text-6xl font-bold text-white mb-6 flex flex-wrap items-center justify-center gap-4 text-center">
+            Welcome to
+            <span className="inline-block transform scale-150 pl-6">
+              <Logo />
+            </span>
+          </h1>
 
-        <blockquote className="text-xl italic text-gray-300 max-w-3xl mx-auto mb-6">
-          &quot;RentHub made it so easy to access top-tier gadgets for my work and
-          leisure. Affordable, reliable, and hassle-free.&quot;
-          <footer className="mt-2 text-lg font-semibold">
-            - John Doe, Freelancer
-          </footer>
-        </blockquote>
+          <p className="text-xl text-blue-100 max-w-2xl mx-auto">
+            Rent high-end gadgets like cameras, gaming consoles, laptops, and more, without the hefty price tag. Your next adventure starts here.
+          </p>
 
-        <div className="flex space-x-6 justify-center mt-6">
-          <button className="px-8 py-4 bg-blue-600 text-white font-medium rounded-lg shadow-xl transform hover:scale-105 hover:bg-blue-700 transition duration-300 ease-in-out">
-            Get Started
-          </button>
-          <button className="px-8 py-4 border-2 border-white text-white font-medium rounded-lg shadow-xl transform hover:scale-105 hover:bg-white hover:text-blue-600 transition duration-300 ease-in-out">
-            Learn More
-          </button>
+          <blockquote className="text-lg italic text-blue-100/90 max-w-3xl mx-auto my-8 p-4 bg-white/10 rounded-lg backdrop-blur-sm">
+            &quot;RentHub made it so easy to access top-tier gadgets for my work and leisure. Affordable, reliable, and hassle-free.&quot;
+            <footer className="mt-3 text-base font-semibold text-blue-200">
+              - John Doe, Freelancer
+            </footer>
+          </blockquote>
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
+            <button className="px-8 py-4 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300">
+              Get Started
+            </button>
+            <button className="px-8 py-4 border-2 border-blue-300 hover:border-white text-white font-semibold rounded-lg hover:bg-white/10 backdrop-blur-sm shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300">
+              Learn More
+            </button>
+          </div>
         </div>
 
         {showScrollIndicator && (
-          <div className="fixed bottom-10 left-1/2 transform -translate-x-1/2 text-white">
-            <div className="text-center animate-bounce">
-              <span className="text-md font-bold">Scroll Down</span>
-              <FaAngleDoubleDown className="w-8 h-8 mx-auto" />
+          <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 text-white animate-bounce">
+            <div className="flex flex-col items-center">
+              <span className="text-sm font-medium mb-1">Scroll Down</span>
+              <FaAngleDoubleDown className="w-5 h-5" />
             </div>
           </div>
         )}
       </header>
 
-    
 
       {/* Features Section */}
-      <section className="bg-white py-16 px-6 text-center">
-        <h2 className="text-3xl font-bold text-blue-600 mb-10">
-          Why Choose Us?
-        </h2>
-        <div className="flex justify-center space-x-20">
-          <div className="bg-gray-100 p-8 rounded-lg w-64 shadow-lg transform hover:scale-105 transition duration-300 ease-in-out">
-            <FaDollarSign size={50} className="text-gray-600 mb-6 mx-auto" />
-            <h3 className="text-black font-bold text-lg">Affordable</h3>
-            <p className="text-gray-600 pt-4 font-semibold">
-              Rent at the best prices without breaking the bank.
-            </p>
-          </div>
-          <div className="bg-gray-100 p-8 rounded-lg w-64 shadow-lg transform hover:scale-105 transition duration-300 ease-in-out">
-            <FaLock size={50} className="text-gray-600 mb-6 mx-auto" />
-            <h3 className="text-black font-bold text-lg">Secure</h3>
-            <p className="text-gray-600 pt-4 font-semibold">
-              Verified users ensure safe transactions.
-            </p>
-          </div>
-          <div className="bg-gray-100 p-8 rounded-lg w-64 shadow-lg transform hover:scale-105 transition duration-300 ease-in-out">
-            <FaBoxOpen size={50} className="text-gray-600 mb-6 mx-auto" />
-            <h3 className="text-black font-bold text-lg">Wide Selection</h3>
-            <p className="text-gray-600 pt-4 font-semibold">
-              Choose from a range of high-tech gadgets.
-            </p>
+      <section className="py-20 px-4 sm:px-6 bg-white">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-4xl font-bold text-center text-gray-800 mb-16">
+            Why Choose <span className="text-blue-600">RentHub</span>?
+          </h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="bg-gradient-to-b from-blue-50 to-white p-8 rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 border border-blue-100">
+              <div className="bg-blue-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                <FaDollarSign size={30} className="text-blue-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-800 text-center mb-4">Affordable</h3>
+              <p className="text-gray-600 text-center">
+                Rent premium gadgets at prices that won&apos;t break the bank. Our flexible plans fit any budget.
+              </p>
+            </div>
+
+            <div className="bg-gradient-to-b from-blue-50 to-white p-8 rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 border border-blue-100">
+              <div className="bg-blue-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                <FaLock size={30} className="text-blue-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-800 text-center mb-4">Secure</h3>
+              <p className="text-gray-600 text-center">
+                All transactions are protected with advanced security measures and verified users.
+              </p>
+            </div>
+
+            <div className="bg-gradient-to-b from-blue-50 to-white p-8 rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 border border-blue-100">
+              <div className="bg-blue-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                <FaBoxOpen size={30} className="text-blue-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-800 text-center mb-4">Wide Selection</h3>
+              <p className="text-gray-600 text-center">
+                From the latest cameras to high-end gaming rigs, we&apos;ve got all your tech needs covered.
+              </p>
+            </div>
           </div>
         </div>
       </section>
 
       {/* About Us Section */}
-      <section className="py-16 px-6 bg-gray-50 text-center">
-        <h2 className="text-3xl font-bold text-blue-600 mb-10">
-          About RentHub
-        </h2>
-        <p className="text-lg text-gray-700 max-w-3xl mx-auto mb-6">
-          RentHub was founded with the goal of providing people with easy access
-          to the latest technology at an affordable cost...
-        </p>
+      <section className="py-20 px-4 sm:px-6 bg-gray-50">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-4xl font-bold text-gray-800 mb-8">
+            About <span className="text-blue-600">RentHub</span>
+          </h2>
+          <div className="space-y-6 text-lg text-gray-600">
+            <p>
+              Founded in 2023, RentHub was born from a simple idea: technology should be accessible to everyone.
+            </p>
+            <p>
+              We believe you shouldn&apos;t have to pay premium prices for temporary access to the gadgets you need.
+            </p>
+            <p>
+              Our platform connects tech enthusiasts with quality equipment, creating a community built on trust and convenience.
+            </p>
+          </div>
+        </div>
       </section>
 
       {/* Pricing Section */}
-      <section className="bg-white py-16 px-6 text-center">
-        <h2 className="text-3xl font-bold text-blue-600 mb-8">
-          Affordable Pricing
-        </h2>
-        {/* Pricing content remains the same */}
+      <section className="py-20 px-4 sm:px-6 bg-white">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-4xl font-bold text-gray-800 mb-4">
+            Simple, <span className="text-blue-600">Transparent</span> Pricing
+          </h2>
+          <p className="text-xl text-gray-600 mb-12 max-w-2xl mx-auto">
+            No hidden fees. Rent what you need, when you need it.
+          </p>
+
+          {/* Pricing cards would go here */}
+          <div className="bg-blue-50 rounded-xl p-8 max-w-2xl mx-auto">
+            <p className="text-gray-600">Pricing cards coming soon!</p>
+          </div>
+        </div>
       </section>
 
       {/* Testimonials Section */}
-      <section className="bg-blue-100 py-16 px-6 text-center">
-        <Testimonials />
+      <section className="py-20 px-4 sm:px-6 bg-blue-50">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-4xl font-bold text-center text-gray-800 mb-16">
+            What Our <span className="text-blue-600">Customers</span> Say
+          </h2>
+          <Testimonials />
+        </div>
       </section>
 
       {/* CTA Section */}
-      <section className="bg-blue-600 text-white py-16 px-6 text-center">
-        <h2 className="text-3xl font-bold mb-4">Ready to Rent Your Gadget?</h2>
-        <p className="text-lg mb-8">
-          Choose the best plan that suits your needs, and get started today!
-        </p>
-        <button className="px-6 py-3 bg-white text-blue-600 font-medium rounded-lg hover:bg-blue-100 transform hover:scale-105 transition duration-300 ease-in-out">
-          Sign Up Now
-        </button>
+      <section className="py-20 px-4 sm:px-6 bg-gradient-to-r from-blue-600 to-blue-800 text-white">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-4xl font-bold mb-6">Ready to Rent Your Next Gadget?</h2>
+          <p className="text-xl text-blue-100 mb-10 max-w-2xl mx-auto">
+            Join thousands of satisfied customers enjoying hassle-free tech rentals today.
+          </p>
+          <Link href="/signup">
+            <button className="px-10 py-4 bg-white text-blue-600 font-bold rounded-lg hover:bg-blue-50 transform hover:scale-105 transition-all duration-300 shadow-lg">
+              Sign Up Now - It&apos;s Free
+            </button>
+          </Link>
+        </div>
       </section>
     </div>
   );

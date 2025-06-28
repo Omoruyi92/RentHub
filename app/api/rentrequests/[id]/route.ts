@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/app/lib/dbConnect';
 import RentRequest from '@/app/models/RentRequest';
@@ -20,7 +21,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     const { status } = body;
 
     if (!['accepted', 'rejected'].includes(status)) {
-      return NextResponse.json({ error: 'Invalid status' }, { status: 400 });
+      return NextResponse.json({ success: false, message: 'Invalid status value' }, { status: 400 });
     }
 
     const updated = await RentRequest.findByIdAndUpdate(
@@ -30,11 +31,11 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     );
 
     if (!updated) {
-      return NextResponse.json({ error: 'Rent request not found' }, { status: 404 });
+      return NextResponse.json({ success: false, message: 'Rent request not found' }, { status: 404 });
     }
 
-    return NextResponse.json(updated, { status: 200 });
-  } catch (error) {
-    return NextResponse.json({ error: 'Failed to update rent request' }, { status: 500 });
+    return NextResponse.json({ success: true, data: updated }, { status: 200 });
+  } catch {
+    return NextResponse.json({ success: false, message: 'Something went wrong while updating the rent request.' }, { status: 500 });
   }
 }

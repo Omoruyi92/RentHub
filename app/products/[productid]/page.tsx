@@ -1,6 +1,7 @@
 'use client';
 
 import { useParams } from 'next/navigation';
+import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/app/context/AuthContext';
 import { useCart } from '@/app/context/CartContext';
@@ -115,9 +116,11 @@ export default function ProductDetailPage() {
       <div className="grid md:grid-cols-2 gap-8">
         <div>
           {product.imageUrl ? (
-            <img
+            <Image
               src={product.imageUrl}
               alt={product.name}
+              width={800}
+              height={320}
               className="rounded-lg shadow-lg object-cover w-full h-80"
             />
           ) : (

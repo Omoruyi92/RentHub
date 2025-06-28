@@ -1,14 +1,14 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 export const runtime = 'nodejs';
 
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import dbConnect from '@/app/lib/dbConnect';
 import Product from '@/app/models/Product';
 import { adminMiddleware } from '@/app/middleware/authMiddleware';
 
-// GET: Public
-export async function GET(request: Request, context: { params: { productid: string } }) {
+const GET = async (_request: NextRequest, { params }: { params: { productid: string; }; }) => {
+  const { productid } = params;
   try {
-    const productid = context.params.productid;
     await dbConnect();
     const product = await Product.findById(productid);
     if (!product) {
@@ -18,15 +18,14 @@ export async function GET(request: Request, context: { params: { productid: stri
   } catch (error) {
     return NextResponse.json({ message: 'Server error', error }, { status: 500 });
   }
-}
+};
 
-// PUT: Admin only
-export async function PUT(request: Request, context: { params: { productid: string } }) {
+const PUT = async (request: NextRequest, { params }: { params: { productid: string } }) => {
   const middlewareResponse = await adminMiddleware(request);
   if (middlewareResponse) return middlewareResponse;
 
+  const { productid } = params;
   try {
-    const productid = context.params.productid;
     await dbConnect();
     const body = await request.json();
     const updatedProduct = await Product.findByIdAndUpdate(productid, body, { new: true });
@@ -34,25 +33,26 @@ export async function PUT(request: Request, context: { params: { productid: stri
       return NextResponse.json({ message: 'Product not found' }, { status: 404 });
     }
     return NextResponse.json(updatedProduct);
-  } catch (error) {
-    return NextResponse.json({ message: 'Server error', error }, { status: 500 });
+  } catch {
+    return NextResponse.json({ message: 'Server error' }, { status: 500 });
   }
-}
+};
 
-// DELETE: Admin only
-export async function DELETE(request: Request, context: { params: { productid: string } }) {
+const DELETE = async (request: NextRequest, { params }: { params: { productid: string } }) => {
   const middlewareResponse = await adminMiddleware(request);
   if (middlewareResponse) return middlewareResponse;
 
+  const { productid } = params;
   try {
-    const productid = context.params.productid;
     await dbConnect();
     const deletedProduct = await Product.findByIdAndDelete(productid);
     if (!deletedProduct) {
       return NextResponse.json({ message: 'Product not found' }, { status: 404 });
     }
     return NextResponse.json({ message: 'Product deleted successfully' });
-  } catch (error) {
-    return NextResponse.json({ message: 'Server error', error }, { status: 500 });
+  } catch {
+    return NextResponse.json({ message: 'Server error' }, { status: 500 });
   }
-}
+};
+
+export { GET, PUT, DELETE };

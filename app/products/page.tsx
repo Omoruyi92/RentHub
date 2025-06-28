@@ -1,6 +1,9 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import type { SyntheticEvent } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useAuth } from '@/app/context/AuthContext';
 import RecentlyViewed from '../components/RecentlyViewed';
@@ -40,23 +43,7 @@ export default function ProductsPage() {
     fetchProducts();
   }, []);
 
-  useEffect(() => {
-    handleFilter();
-  }, [search, categoryFilter, products]);
-
-  const fetchProducts = async () => {
-    const res = await fetch('/api/products');
-    const data = await res.json();
-    setProducts(data);
-    setFilteredProducts(data);
-
-    const uniqueCategories: string[] = Array.from(
-      new Set(data.map((p: Product) => p.category).filter((c: any): c is string => Boolean(c)))
-    );
-    setCategories(uniqueCategories);
-  };
-
-  const handleFilter = () => {
+  const handleFilter = useCallback(() => {
     let filtered = [...products];
     if (search.trim()) {
       filtered = filtered.filter((p) =>
@@ -67,6 +54,22 @@ export default function ProductsPage() {
       filtered = filtered.filter((p) => p.category === categoryFilter);
     }
     setFilteredProducts(filtered);
+  }, [products, search, categoryFilter]);
+
+  useEffect(() => {
+    handleFilter();
+  }, [handleFilter]);
+
+  const fetchProducts = async () => {
+    const res = await fetch('/api/products');
+    const data = await res.json();
+    setProducts(data);
+    setFilteredProducts(data);
+
+    const uniqueCategories: string[] = Array.from(
+      new Set(data.map((p: Product) => p.category).filter((c: string | undefined): c is string => typeof c === 'string' && Boolean(c)))
+    );
+    setCategories(uniqueCategories);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -279,14 +282,14 @@ export default function ProductsPage() {
             <Link
               href={`/products/${product._id}`}
               onClick={() => {
+                let viewed: { id: string; name: string; image: string; price: number }[] = JSON.parse(localStorage.getItem('recentlyViewed') || '[]');
                 const viewedProduct = {
                   id: product._id,
                   name: product.name,
                   image: product.imageUrl || '',
                   price: product.price,
                 };
-                let viewed = JSON.parse(localStorage.getItem('recentlyViewed') || '[]');
-                viewed = viewed.filter((g: any) => g.id !== viewedProduct.id);
+                viewed = viewed.filter((g) => g.id !== viewedProduct.id);
                 viewed.unshift(viewedProduct);
                 viewed = viewed.slice(0, 8);
                 localStorage.setItem('recentlyViewed', JSON.stringify(viewed));
@@ -294,11 +297,13 @@ export default function ProductsPage() {
             >
               <div className="w-full h-48 bg-gray-700 flex items-center justify-center">
                 {product.imageUrl ? (
-                  <img
+                  <Image
                     src={product.imageUrl}
                     alt={product.name}
+                    width={400}
+                    height={192}
                     className="w-full h-full object-cover"
-                    onError={(e) => {
+                    onError={(e: SyntheticEvent<HTMLImageElement>) => {
                       const img = e.currentTarget;
                       img.style.display = 'none';
                       const parent = img.parentElement!;
@@ -323,7 +328,7 @@ export default function ProductsPage() {
               <p className="text-gray-400 mb-4">{product.description}</p>
               {product.rentPerDay && (
                 <p className="text-yellow-400 text-sm">
-                    Rent: ${product.rentPerDay}/day
+                  Rent: ${product.rentPerDay}/day
                 </p>
               )}
 

@@ -29,8 +29,8 @@ export default function Navigation() {
           : "bg-transparent"
       } text-gray-700 dark:text-gray-200 fixed w-full top-0 left-0 z-50 transition-all ease-in-out duration-300`}
     >
-      <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-        <Link href="/" className="text-2xl font-bold text-blue-500 hover:text-blue-400 transition-colors">
+      <div className="container mx-auto p-4 flex justify-between items-center">
+        <Link href="/">
           <Logo />
         </Link>
 

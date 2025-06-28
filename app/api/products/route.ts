@@ -5,8 +5,9 @@ import { adminMiddleware } from '@/app/middleware/authMiddleware';
 
 // GET remains public - no auth needed
 export async function GET() {
+  // context.params.productid is not used in this route
   await dbConnect();
-  
+
   try {
     const products = await Product.find();
     return NextResponse.json(products);
@@ -28,8 +29,8 @@ export async function POST(request: Request) {
     const { name, description, price, imageUrl, category } = await request.json();
     const newProduct = new Product({ name, description, price, imageUrl, category });
     await newProduct.save();
-  } catch (error) {
-    console.error(error);
+  } catch {
+    console.error();
     return NextResponse.json({ error: 'Failed to create product' }, { status: 500 });
   } return NextResponse.json({ error: 'Failed to create product' }, { status: 500 });
-  }
+}

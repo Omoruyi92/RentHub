@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/app/context/AuthContext';
 import { useRouter } from 'next/navigation';
 
@@ -43,16 +43,7 @@ export default function MessagesPage() {
   const [selectedMessageId, setSelectedMessageId] = useState<string | null>(null);
   const [filter, setFilter] = useState<'all' | 'unread' | 'read'>('all');
 
-  useEffect(() => {
-    if (!user || user.role !== 'admin') {
-      router.push('/login');
-      return;
-    }
-    fetchMessages();
-    fetchRentRequests();
-  }, [user, router]);
-
-  const fetchMessages = async () => {
+  const fetchMessages = useCallback(async () => {
     try {
       const res = await fetch('/api/messages', {
         headers: { 'Authorization': `Bearer ${token}` },
@@ -65,9 +56,9 @@ export default function MessagesPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [token]);
 
-  const fetchRentRequests = async () => {
+  const fetchRentRequests = useCallback(async () => {
     try {
       const res = await fetch('/api/rent', {
         headers: { 'Authorization': `Bearer ${token}` },
@@ -78,7 +69,16 @@ export default function MessagesPage() {
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch rent requests');
     }
-  };
+  }, [token]);
+
+  useEffect(() => {
+    if (!user || user.role !== 'admin') {
+      router.push('/login');
+      return;
+    }
+    fetchMessages();
+    fetchRentRequests();
+  }, [user, router, fetchMessages, fetchRentRequests]);
 
   const handleStatusUpdate = async (id: string, status: 'accepted' | 'rejected') => {
     try {
@@ -90,10 +90,10 @@ export default function MessagesPage() {
         },
         body: JSON.stringify({ status }),
       });
-  
+
       const updated = await res.json();
       if (!res.ok) throw new Error(updated.error || 'Update failed');
-  
+
       // update state
       setRentRequests(prev =>
         prev.map(req => (req._id === id ? { ...req, status: updated.status } : req))
@@ -102,7 +102,7 @@ export default function MessagesPage() {
       setError(err instanceof Error ? err.message : 'Failed to update status');
     }
   };
-  
+
 
   const handleReply = async (messageId: string) => {
     try {
@@ -141,17 +141,15 @@ export default function MessagesPage() {
         <div className="flex space-x-2">
           <button
             onClick={() => setActiveTab('messages')}
-            className={`px-4 py-1 rounded-md font-medium ${
-              activeTab === 'messages' ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-200'
-            }`}
+            className={`px-4 py-1 rounded-md font-medium ${activeTab === 'messages' ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-200'
+              }`}
           >
             Messages
           </button>
           <button
             onClick={() => setActiveTab('rent')}
-            className={`px-4 py-1 rounded-md font-medium ${
-              activeTab === 'rent' ? 'bg-green-600 text-white' : 'bg-gray-700 text-gray-200'
-            }`}
+            className={`px-4 py-1 rounded-md font-medium ${activeTab === 'rent' ? 'bg-green-600 text-white' : 'bg-gray-700 text-gray-200'
+              }`}
           >
             Rent Requests
           </button>
@@ -171,14 +169,13 @@ export default function MessagesPage() {
               <button
                 key={type}
                 onClick={() => setFilter(type)}
-                className={`px-3 py-1 rounded-md text-sm font-medium ${
-                  filter === type ? 'bg-blue-500 text-white' : 'bg-gray-700 text-gray-200'
-                }`}
+                className={`px-3 py-1 rounded-md text-sm font-medium ${filter === type ? 'bg-blue-500 text-white' : 'bg-gray-700 text-gray-200'
+                  }`}
               >
                 {type[0].toUpperCase() + type.slice(1)} ({messages.filter(m =>
                   type === 'all' ? true :
-                  type === 'unread' ? !m.isRead :
-                  m.isRead
+                    type === 'unread' ? !m.isRead :
+                      m.isRead
                 ).length})
               </button>
             ))}
@@ -191,9 +188,8 @@ export default function MessagesPage() {
               {filteredMessages.map((msg) => (
                 <div
                   key={msg._id}
-                  className={`p-6 rounded-lg shadow-md ${
-                    msg.isRead ? 'bg-gray-800' : 'bg-gray-900 border-l-4 border-blue-500'
-                  }`}
+                  className={`p-6 rounded-lg shadow-md ${msg.isRead ? 'bg-gray-800' : 'bg-gray-900 border-l-4 border-blue-500'
+                    }`}
                 >
                   <div className="flex justify-between mb-2">
                     <div>
@@ -267,59 +263,58 @@ export default function MessagesPage() {
         </>
       )}
 
-{activeTab === 'rent' && (
-  <div className="grid gap-4">
-    {rentRequests.length === 0 ? (
-      <p className="text-gray-400">No rent requests found.</p>
-    ) : (
-      rentRequests.map((req) => (
-        <div key={req._id} className="p-6 bg-gray-800 rounded-lg shadow-md">
-          <p><strong>Name:</strong> {req.name}</p>
-          <p><strong>Email:</strong> {req.email}</p>
-          <p><strong>Phone:</strong> {req.phone}</p>
-          <p><strong>Address:</strong> {req.address}</p>
-          <p><strong>Product:</strong> {req.productName}</p>
-          <p><strong>Days:</strong> {req.days}</p>
-          <p><strong>Total:</strong> ${req.total}</p>
-          <p>
-            <strong>Status:</strong>{' '}
-            <span
-              className={`inline-block px-2 py-1 rounded text-white text-sm ${
-                req.status === 'accepted'
-                  ? 'bg-green-600'
-                  : req.status === 'rejected'
-                  ? 'bg-red-600'
-                  : 'bg-yellow-600'
-              }`}
-            >
-              {req.status}
-            </span>
-          </p>
-          <p className="text-sm text-gray-400">
-            Submitted: {new Date(req.createdAt).toLocaleString()}
-          </p>
+      {activeTab === 'rent' && (
+        <div className="grid gap-4">
+          {rentRequests.length === 0 ? (
+            <p className="text-gray-400">No rent requests found.</p>
+          ) : (
+            rentRequests.map((req) => (
+              <div key={req._id} className="p-6 bg-gray-800 rounded-lg shadow-md">
+                <p><strong>Name:</strong> {req.name}</p>
+                <p><strong>Email:</strong> {req.email}</p>
+                <p><strong>Phone:</strong> {req.phone}</p>
+                <p><strong>Address:</strong> {req.address}</p>
+                <p><strong>Product:</strong> {req.productName}</p>
+                <p><strong>Days:</strong> {req.days}</p>
+                <p><strong>Total:</strong> ${req.total}</p>
+                <p>
+                  <strong>Status:</strong>{' '}
+                  <span
+                    className={`inline-block px-2 py-1 rounded text-white text-sm ${req.status === 'accepted'
+                        ? 'bg-green-600'
+                        : req.status === 'rejected'
+                          ? 'bg-red-600'
+                          : 'bg-yellow-600'
+                      }`}
+                  >
+                    {req.status}
+                  </span>
+                </p>
+                <p className="text-sm text-gray-400">
+                  Submitted: {new Date(req.createdAt).toLocaleString()}
+                </p>
 
-          {req.status === 'pending' && (
-            <div className="flex gap-2 mt-4">
-              <button
-                onClick={() => handleStatusUpdate(req._id, 'accepted')}
-                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
-              >
-                Accept
-              </button>
-              <button
-                onClick={() => handleStatusUpdate(req._id, 'rejected')}
-                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded"
-              >
-                Reject
-              </button>
-            </div>
+                {req.status === 'pending' && (
+                  <div className="flex gap-2 mt-4">
+                    <button
+                      onClick={() => handleStatusUpdate(req._id, 'accepted')}
+                      className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
+                    >
+                      Accept
+                    </button>
+                    <button
+                      onClick={() => handleStatusUpdate(req._id, 'rejected')}
+                      className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded"
+                    >
+                      Reject
+                    </button>
+                  </div>
+                )}
+              </div>
+            ))
           )}
         </div>
-      ))
-    )}
-  </div>
-)}
+      )}
       {activeTab === 'rent' && (
         <div className="grid gap-4">
           {rentRequests.length === 0 ? (

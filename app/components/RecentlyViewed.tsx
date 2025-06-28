@@ -1,6 +1,6 @@
-
 'use client';
 
+import Image from 'next/image';
 import { useEffect, useState } from 'react';
 
 type Gadget = {
@@ -28,7 +28,13 @@ export default function RecentlyViewed() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {gadgets.map((gadget) => (
           <div key={gadget.id} className="border p-2 rounded hover:shadow-lg transition">
-            <img src={gadget.image} alt={gadget.name} className="w-full h-32 object-cover rounded" />
+            <Image
+              src={gadget.image}
+              alt={gadget.name}
+              width={200}
+              height={128}
+              className="w-full h-32 object-cover rounded"
+            />
             <h3 className="text-sm font-semibold mt-2 text-gray-800">{gadget.name}</h3>
             <p className="text-sm text-gray-600">${gadget.price}</p>
           </div>
