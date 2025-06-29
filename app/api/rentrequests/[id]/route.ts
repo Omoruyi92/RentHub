@@ -3,13 +3,16 @@ import dbConnect from '@/app/lib/dbConnect';
 import RentRequest from '@/app/models/RentRequest';
 import { adminMiddleware } from '@/app/middleware/authMiddleware';
 
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+
   await dbConnect();
 
   const isAdmin = await adminMiddleware(request);
   if (isAdmin) return isAdmin;
-
-  const { id } = params;
 
   if (!id) {
     return NextResponse.json({ error: 'Missing request ID' }, { status: 400 });
