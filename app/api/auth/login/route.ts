@@ -4,6 +4,12 @@ import User from '@/app/models/User';
 import jwt from 'jsonwebtoken';
 
 export async function POST(request: Request) {
+  if (!process.env.MONGODB_URI) {
+    return NextResponse.json(
+      { error: 'Server configuration error: MONGODB_URI not set' },
+      { status: 500 }
+    );
+  }
   await dbConnect();
 
   try {
