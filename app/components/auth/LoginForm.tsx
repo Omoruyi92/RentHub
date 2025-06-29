@@ -134,8 +134,8 @@ export default function LoginForm() {
                 type="submit"
                 disabled={!isFormValid || isLoading}
                 className={`w-full py-3 px-4 rounded-lg font-medium text-white shadow-md transition-all ${isFormValid
-                    ? 'bg-blue-600 hover:bg-blue-700 hover:shadow-lg'
-                    : 'bg-blue-400 cursor-not-allowed'
+                  ? 'bg-blue-600 hover:bg-blue-700 hover:shadow-lg'
+                  : 'bg-blue-400 cursor-not-allowed'
                   } ${isLoading ? 'opacity-80' : ''}`}
               >
                 {isLoading ? (

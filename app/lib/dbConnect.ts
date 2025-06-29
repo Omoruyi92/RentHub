@@ -1,37 +1,34 @@
-import dotenv from 'dotenv';
-dotenv.config();
-
 import mongoose from 'mongoose';
 
-const dbConnect = async () => {
-  try {
-    mongoose.connect(process.env.MONGODB_URI!);
-    const uri = process.env.MONGODB_URI;
+const MONGODB_URI = process.env.MONGODB_URI!;
 
-    if (!uri) {
-      console.error("MONGODB_URI is undefined. Please check your .env file.");
-      process.exit(1);
-    }
+if (!MONGODB_URI) {
+  throw new Error('Please define the MONGODB_URI environment variable');
+}
 
-    await mongoose.connect(uri);
-    const connection = mongoose.connection;
+let cached = (global as any).mongoose;
 
-    if (connection.listeners('connected').length === 0) {
-      connection.on('connected', () => {
-        console.log('MongoDB connected successfully');
-      });
-    }
+if (!cached) {
+  cached = (global as any).mongoose = { conn: null, promise: null };
+}
 
-    connection.on('error', (err) => {
-      console.log(
-        'MongoDB connection error. Please make sure MongoDB is running. ' + err
-      );
-      process.exit();
+async function dbConnect() {
+  if (cached.conn) return cached.conn;
+
+  if (!cached.promise) {
+    cached.promise = mongoose.connect(MONGODB_URI, {
+      bufferCommands: false,
+    }).then((mongoose) => {
+      console.log('MongoDB connected successfully');
+      return mongoose;
+    }).catch((err) => {
+      console.error('MongoDB connection error:', err);
+      throw err;
     });
-  } catch (error) {
-    console.log('Something went wrong!');
-    console.log(error);
   }
-};
+
+  cached.conn = await cached.promise;
+  return cached.conn;
+}
 
 export default dbConnect;

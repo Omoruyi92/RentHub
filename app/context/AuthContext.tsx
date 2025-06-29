@@ -31,7 +31,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const savedToken = localStorage.getItem('token');
     const savedUser = localStorage.getItem('user');
-    
+
     if (savedToken && savedUser) {
       setToken(savedToken);
       setUser(JSON.parse(savedUser));
@@ -47,11 +47,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
-      
-      const data = await res.json();
-      
+
+      let data = null;
+      if (res.headers.get('content-type')?.includes('application/json')) {
+        data = await res.json();
+      }
+
       if (!res.ok) {
-        throw new Error(data.error || 'Login failed');
+        throw new Error(data?.error || 'Login failed');
       }
 
       localStorage.setItem('token', data.token);
@@ -72,9 +75,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password, name }),
       });
-      
+
       const data = await res.json();
-      
+
       if (!res.ok) {
         throw new Error(data.error || 'Signup failed');
       }
@@ -82,7 +85,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Don't set user data or token after signup
       // User will need to log in explicitly
       return data;
-      
+
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
       throw err;

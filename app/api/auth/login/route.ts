@@ -5,19 +5,26 @@ import jwt from 'jsonwebtoken';
 
 export async function POST(request: Request) {
   await dbConnect();
-  
+
   try {
-    const { email, password } = await request.json();
-    
-    // Validate required fields
+    let body;
+    try {
+      body = await request.json();
+    } catch (err) {
+      return NextResponse.json(
+        { error: 'Invalid request format' },
+        { status: 400 }
+      );
+    }
+    const { email, password } = body;
+
     if (!email || !password) {
       return NextResponse.json(
         { error: 'Please provide email and password' },
         { status: 400 }
       );
     }
-    
-    // Find user by email
+
     const user = await User.findOne({ email });
     if (!user) {
       return NextResponse.json(
@@ -25,8 +32,7 @@ export async function POST(request: Request) {
         { status: 401 }
       );
     }
-    
-    // Verify password
+
     const isValidPassword = await user.comparePassword(password);
     if (!isValidPassword) {
       return NextResponse.json(
@@ -35,14 +41,19 @@ export async function POST(request: Request) {
       );
     }
 
-    // Generate JWT token
+    if (!process.env.JWT_SECRET) {
+      return NextResponse.json(
+        { error: 'Server configuration error: JWT secret not set' },
+        { status: 500 }
+      );
+    }
+
     const token = jwt.sign(
       { userId: user._id, role: user.role },
-      process.env.JWT_SECRET!,
+      process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
 
-    // Return user data and token
     return NextResponse.json({
       token,
       user: {
@@ -52,7 +63,6 @@ export async function POST(request: Request) {
         role: user.role
       }
     });
-    
   } catch (error) {
     console.error('Login error:', error);
     return NextResponse.json(
